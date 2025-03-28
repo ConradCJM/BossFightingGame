@@ -2,7 +2,7 @@ public class Project2Runner {
     
     /*
      * Name: CJ Mejia
-     * Student ID: 501303918
+     * 
      * 
      ******** Project Description ********
      * 
@@ -13,50 +13,7 @@ public class Project2Runner {
      * If the player clicks on the boss 10 times before they die, then they win.
      * The player can move with "WASD" and/or Arrow Keys 
      * 
-     * ***** This game is very difficult and will probably take many attempts before the player wins. *****
-     * 
-     ******** Swing Requirement ********
-     * 
-     * Describe in 1 paragraph how your program satisfies the requirement that
-     * there is at least 3 unique components. Be clear to identify in what
-     * files and the lines number (just the starting line is fine) that the
-     * components are defined on.
-     * 
-     * JButton: StartMenu.java:
-     * 
-     * JLabel: StartMenu.java:
-     * 
-     * JProgressBar: GameWindow.Java:
-     * 
-     * ImageIcon: StartMenu.java:
-     * 
-     * 
-     * 
-     ******** 2D Graphics Requirement ********
-     *
-     * Describe in 1 paragraph how your program satisfies the requirement that
-     * there is at least 1 JPanel used for drawing something. Be clear to
-     * identify in what files and the line numbers that this panel is defined on.
-     * 
-     * JPanel: GameWindow.java:
-     * 
-     * 
-     * 
-     ******** Event Listener Requirement ********
-     *
-     * Describe in 1 paragraph how your program satisfies the requirement that
-     * there is at least one ActionListener, and there is additionally at least
-     * one MouseListener or ActionListener. Be clear to identify in what file
-     * and the line numbers that these listeners are defined in.
-     * 
-     * EventListener: StartMenu.java
-     * 
-     * 
-     * MouseListener: GameWindow.java:
-     * 
-     * 
-     * KeyListener: GameWindow.java:
-     * 
+     * ***** This game is very difficult and will probably take many attempts before the player wins. ***** 
      */
 
     public static void main(String[] args) {
