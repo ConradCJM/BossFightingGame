@@ -19,6 +19,7 @@ public class GameWindow extends JPanel{
     private JLabel gameOverMessage;
 
 
+    //run methods to properly close frame
     public void close(){
         frame.setVisible(false);
         frame.dispose();
@@ -27,43 +28,57 @@ public class GameWindow extends JPanel{
 
     //default constructor override
     public GameWindow(){
+
+        //make game run
+        runGame = true;
+
+        //Game over message
         gameOverMessage = new JLabel();
-        bb = new BossBar();
+        
+        //Progress Of current phase bar
         pg = new JProgressBar();
         pg.setMaximum(1000);
         pg.setValue(0);
         pg.setBounds(10,10,100,40);
-        runGame = true;
         this.add(pg);
         
+        //Mouse tracker
         m1 = new MouseTracker();
 
+        //Phase time tracker
         phaseTimer = 0;
 
+        //Projectiles arraylist
         projectiles = new ArrayList<Projectile>();
 
-        bossPhase = 0;
+        //Phase tracker
+        bossPhase = 1;
 
+        //Key tracker
         kt = new KeyTracker();
 
-        frame = new JFrame("Good Luck!");
         
         
+        //J Panel
         this.setBackground(new Color(76,190,228));
         this.setPreferredSize(new Dimension(630,960));
         
-        frame.add(this);
         
         
+        //Boss character
         bc = new BossCharacter();
+        bb = new BossBar();
+
+        //Player
         hpBar = new PlayerHealth();
         pc = new PlayerCharacter();
 
+        //JFrame
+        frame = new JFrame("Good Luck!");
+        frame.add(this);
         frame.addKeyListener(kt);
         frame.addMouseListener(m1);
-        
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
         frame.pack();
         frame.setLayout(null);
         frame.setVisible(true);
@@ -71,15 +86,20 @@ public class GameWindow extends JPanel{
     }
     //Update gameover message based on if player wins or loses
     public void updateGameOverMessage(){
+
+        //check player hp to see if they win/lose
         if (hpBar.hp<=0){
             gameOverMessage = new JLabel("YOU LOSE!");
         }
         else{
             gameOverMessage = new JLabel("YOU WIN!");
         }
+
+        //make message
         gameOverMessage.setBounds(265,60,500,500);
         gameOverMessage.setFont(new Font("Impact",Font.BOLD,30));
         
+        //add the message to jpanel
         this.add(gameOverMessage);
 
     }
@@ -135,6 +155,11 @@ public class GameWindow extends JPanel{
         hpBar.draw(g);
         bb.draw(g);
 
+        //change background if hp of boss is less or equal than 5
+        if (bc.hp<=5){
+            this.setBackground(new Color(165,0,30));
+        }
+
         //draw projectiles
         for (Projectile p:projectiles){
             p.draw(g);
@@ -159,7 +184,8 @@ public class GameWindow extends JPanel{
                     // Debug message
                     // System.out.println("right of character is lined with a projectile");
 
-                    
+
+                    //remove projectile and damage player
                     projectiles.remove(i);
                     hpBar.takeDamage();
                 }
@@ -168,7 +194,7 @@ public class GameWindow extends JPanel{
                     // Debug message
                     // System.out.println("left of character is lined with a projectile");
 
-                    
+                    //remove projectile and damage player
                     projectiles.remove(i);
                     hpBar.takeDamage();
                 }
@@ -224,10 +250,16 @@ public class GameWindow extends JPanel{
                         if (!(bc.hasShield)){
                             bc.hp--;
                             
+
+                            //make it so when boss hits half automatically skip to next phase
+                            if (bc.hp==5){
+                                phaseTimer = 1000;
+                            }
                         }
                     }
                 }
             }
+
             // Debug print message
             // System.out.println("Boss: x:<"+(bc.getX()-3)+", "+(bc.getX()+32)+">");
             // System.out.println("Boss: y:<"+(bc.getY()+13)+", "+(bc.getY()+68)+">");
@@ -256,72 +288,77 @@ public class GameWindow extends JPanel{
 
     //KeyTracker class
     private class KeyTracker implements KeyListener{
+        private int speed = 4;
         
         //key typed method
         @Override
-        public void keyTyped(KeyEvent e) {}
+        public void keyTyped(KeyEvent e) {
+        }
 
         //key pressed method
         @Override
         public void keyPressed(KeyEvent e) {
             int code = e.getKeyCode();
 
-            //check if user inputted movement [w,a,s,d] or arrow keys; also allows for double inputs to allow quicker movement
-            if (code == KeyEvent.VK_W){
-                pc = new PlayerCharacter(pc.x,pc.y-10);
+            //check if user inputted movement [w,a,s,d] and/or arrow keys
+            if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP){
+                pc = new PlayerCharacter(pc.x,pc.y,pc.dx,-speed);
             }
-            else if (code == KeyEvent.VK_S){
-                pc = new PlayerCharacter(pc.x,pc.y+10);
+            else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN){
+                pc = new PlayerCharacter(pc.x,pc.y,pc.dx,speed);
             }
-            else if (code == KeyEvent.VK_A){
-                pc = new PlayerCharacter(pc.x-10,pc.y);
+            else if (code == KeyEvent.VK_A ||code == KeyEvent.VK_LEFT){
+                pc = new PlayerCharacter(pc.x,pc.y,-speed,pc.dy);
             }
-            else if (code == KeyEvent.VK_D){
-                pc = new PlayerCharacter(pc.x+10,pc.y);
+            else if (code == KeyEvent.VK_D ||code == KeyEvent.VK_RIGHT){
+                pc = new PlayerCharacter(pc.x,pc.y,speed,pc.dy);
             }
-            else if (code == KeyEvent.VK_UP){
-                pc = new PlayerCharacter(pc.x,pc.y-10);
-            }
-            else if (code == KeyEvent.VK_DOWN){
-                pc = new PlayerCharacter(pc.x,pc.y+10);
-            }
-            else if (code == KeyEvent.VK_LEFT){
-                pc = new PlayerCharacter(pc.x-10,pc.y);
-            }
-            else if (code == KeyEvent.VK_RIGHT){
-                pc = new PlayerCharacter(pc.x+10,pc.y);
-            }
-            
-
-            
         }
 
         //key released method
         @Override
-        public void keyReleased(KeyEvent e) {}
+        public void keyReleased(KeyEvent e) {
+            int code = e.getKeyCode();
+
+            //Check how player movement should be changed based on which key was last pressed and released by checking dx/dy 
+            if ((code == KeyEvent.VK_W || code == KeyEvent.VK_UP)&& pc.dy==-speed){
+                pc = new PlayerCharacter(pc.x,pc.y,pc.dx,0);
+            }
+            else if((code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN)&& pc.dy==speed){
+                pc = new PlayerCharacter(pc.x,pc.y,pc.dx,0);
+            }
+            else if ((code == KeyEvent.VK_A ||code == KeyEvent.VK_LEFT)&& pc.dx==-speed){
+                pc = new PlayerCharacter(pc.x,pc.y,0,pc.dy);
+            }
+            else if ((code == KeyEvent.VK_D ||code == KeyEvent.VK_RIGHT)&& pc.dx==speed){
+                pc = new PlayerCharacter(pc.x,pc.y,0,pc.dy);
+            }
+            
+        }
 
     }
     //method to change phase of boss and resets phase timer, some phases last longer which is why sometimes phasetimer will be set to an int other than 0
     public void bossPhase(){
+
         //check if boss phase is 1 or 0, increment phase
-        if (phaseTimer/1000==1 && bossPhase<2){
+        if (phaseTimer>=1000 && bossPhase<2){
             bossPhase++;
             phaseTimer = 0;
         }
         //check if boss phase ==2, set phase to phase 3
-        else if (phaseTimer/1000==1 && bossPhase==2){
+        else if (phaseTimer>=1000 && bossPhase==2){
             bossPhase++;
-            phaseTimer = 600;
+            phaseTimer = 100;
         }
         //check if boss phase ==3, set phase to phase 4
-        else if (phaseTimer/1000==1 && bossPhase ==3){
+        else if (phaseTimer>=1000 && bossPhase ==3){
             bossPhase++;
             phaseTimer = 0;
         }
         //default to phase 0 once every other phase is done;
-        else if(phaseTimer/1000==1){
-            bossPhase=0;
-            phaseTimer = 500;
+        else if(phaseTimer>=1000){
+            bossPhase = 0;
+            phaseTimer = 200;
         }
         
         
@@ -331,64 +368,109 @@ public class GameWindow extends JPanel{
     //method for boss attack
     public void bossAttack(){
 
-
+        //check boss phase
         if (bossPhase == 1){
             bc.hasShield = true;
 
-            //teleport boss randomly accross the top every so often and teleports rapidly when phase starts
-            if (phaseTimer%150==0||(phaseTimer<30&&phaseTimer%5==0)){
-                bc = new BossCharacter((int)(Math.random()*608),40 + (int) (Math.random()*250),true,bc.hp);
-            }
+            //make boss only attack for first 9/10 of phase
+            if (phaseTimer<900){
 
-            //check when to spawn projectiles
-            if (phaseTimer%30==0){
+                //teleport boss randomly accross the top every so often and teleports rapidly when phase starts
+                if (phaseTimer%125==0||(phaseTimer<30&&phaseTimer%5==0)){
+                    bc = new BossCharacter((int)(Math.random()*608),40 + (int) (Math.random()*250),true,bc.hp);
 
-                //spawn projectiles
-                projectiles.add(new CircleProjectile(Color.RED, bc.x-10, bc.y+1, 7, 4, 25, 25));
-                projectiles.add(new CircleProjectile(Color.BLUE, bc.x-10, bc.y+1, -7, 4, 25, 25));
-                projectiles.add(new CircleProjectile(Color.MAGENTA, bc.x-10, bc.y+1, 0, 4, 25, 25));
+                } //add modifier if boss is less than or half hp
+                else if (phaseTimer%65==0 && bc.hp <=5){
+                    bc = new BossCharacter((int)(Math.random()*608),40 + (int) (Math.random()*250),true,bc.hp);
+                }
+
+                //check when to spawn projectiles
+                if (phaseTimer%40==0){
+
+                    //spawn projectiles
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 7, 4, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, -7, 4, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 0, 4, 25, 25));
+                }
+                
+                //add modifier if boss is less than or half hp
+                else if (phaseTimer%20==0 && bc.hp <= 5){
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 7, 4, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, -7, 4, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 0, 4, 25, 25));
+
+                }
             }
+            
             
         }
         //check if boss is in "mirror user movement" phase [phase = 2]
-        else if (bossPhase ==2){
+        else if (bossPhase == 2){
             bc.hasShield = true;
 
-            //check when to spawn projectile
-            if (phaseTimer%50==0){
+            //chase player 
+            bc = new BossCharacter(pc.x,pc.y-600,true,bc.hp);
 
+            //make boss only attack for first 9/10 of phase
+
+            if (phaseTimer<900){
+
+            
+                //check when to spawn projectile
+                if (phaseTimer%45==0){
+
+                    //spawn projectile
+                    projectiles.add(new ArcProjectile(Color.BLACK,bc.x-28,bc.y+2,-2,7,65,50,180,180));
+                    projectiles.add(new ArcProjectile(Color.BLACK,bc.x-28,bc.y+2,0,7,65,50,180,180));
+                    projectiles.add(new ArcProjectile(Color.BLACK,bc.x-28,bc.y+2,2,7,65,50,180,180));
+
+                }
                 
-                //chase player by teleporting (because it looks cooler)
-                bc = new BossCharacter(pc.x,pc.y-600,true,bc.hp);
+                //add modifier if boss is less than or half hp
+                if (phaseTimer%180==0 && bc.hp <= 5){
+                    projectiles.add(new ArcProjectile(Color.BLACK,bc.x-500,40,0,4,380,50,180,180));
+                    projectiles.add(new ArcProjectile(Color.BLACK,bc.x+100,40,0,4,500,50,180,180));
 
-                //spawn projectile
-                projectiles.add(new ArcProjectile(Color.MAGENTA,bc.x-28,bc.y+2,-2,6,65,50,180,180));
-                projectiles.add(new ArcProjectile(Color.MAGENTA,bc.x-28,bc.y+2,0,6,65,50,180,180));
-                projectiles.add(new ArcProjectile(Color.MAGENTA,bc.x-28,bc.y+2,2,6,65,50,180,180));
-
+                }
             }
         } //check if boss is in phase 3 
         else if (bossPhase == 3){
             bc.hasShield = true;
 
-            //check when to spawn projectile
-            if (phaseTimer%100 == 0){
+            //make boss only attack for first 9/10 of phase
 
-                //move boss character 
-                bc = new BossCharacter(140,40,true,bc.hp);
+            if (phaseTimer<900){
 
-                //spawn projectile
-                projectiles.add(new ArcProjectile(Color.BLACK,0,40,0,4,315,50,180,180));
+                //check when to spawn projectile
+                if (phaseTimer%100 == 0){
 
-            }
-            else if (phaseTimer%50 == 0){
+                    //move boss character 
+                    bc = new BossCharacter(140,40,true,bc.hp);
 
-                //move boss character 
-                bc = new BossCharacter(455,40,true,bc.hp);
+                    //spawn projectile
+                    projectiles.add(new ArcProjectile(Color.BLACK,0,40,0,6,315,50,180,180));
 
-                //spawn projectile
-                projectiles.add(new ArcProjectile(Color.BLACK,315,40,0,4,315,50,180,180));
+                }//spawn projectile
+                else if (phaseTimer%50 == 0){
 
+                    //move boss character 
+                    bc = new BossCharacter(455,40,true,bc.hp);
+
+                    //spawn projectile
+                    projectiles.add(new ArcProjectile(Color.BLACK,315,40,0,6,315,50,180,180));
+
+                }
+
+                //add modifier if boss is half hp
+                if (phaseTimer%50 == 0 && bc.hp <=5){
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 0, 9, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 1, 7, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, -1, 7, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 3, 5, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, -3, 5, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 6, 3, 25, 25));
+                    projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, -6, 3, 25, 25));
+                }
             }
         }
         //check if boss is in phase 4
@@ -402,8 +484,9 @@ public class GameWindow extends JPanel{
             }//move boss and attack
             else if (phaseTimer < 500 && phaseTimer%25 == 0){
                 bc = new BossCharacter(bc.x+20,bc.y+4,true,bc.hp);
-                projectiles.add(new CircleProjectile(Color.RED, bc.x-10, bc.y+1, 7, 6, 30, 30));
-                projectiles.add(new CircleProjectile(Color.BLUE, bc.x-10, bc.y+1, -7, 3, 30, 30));
+                projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 7, 3, 30, 30));
+                projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, -7, 5, 30, 30));
+                
             }//move boss to set poition according to timer
             else if (phaseTimer == 500){
                 bc = new BossCharacter(580,50,true,bc.hp);
@@ -411,9 +494,13 @@ public class GameWindow extends JPanel{
             }//move boss and attack
             else if(phaseTimer > 500 && phaseTimer%25 ==0){
                 bc = new BossCharacter(bc.x-20,bc.y+4,true,bc.hp);
-                projectiles.add(new CircleProjectile(Color.RED, bc.x-10, bc.y+1, 7, 6, 30, 30));
-                projectiles.add(new CircleProjectile(Color.BLUE, bc.x-10, bc.y+1, -7, 3, 30, 30));
+                projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, 7, 5, 30, 30));
+                projectiles.add(new CircleProjectile(Color.DARK_GRAY, bc.x-10, bc.y+1, -7, 3, 30, 30));
+            }
 
+            //add modifier if boss is half hp
+            if (phaseTimer%50==0 && bc.hp <=5){
+                projectiles.add(new ArcProjectile(Color.BLACK,bc.x-100,bc.y+2,0,7,200,30,180,180));
             }
 
         }
@@ -424,8 +511,12 @@ public class GameWindow extends JPanel{
             bc.hasShield =false;
 
             // move boss randomly on screen to make it hard to click on them
-            if (phaseTimer%40==0){
+            if (phaseTimer%50==0){
                 bc = new BossCharacter((int)(Math.random()*608),40 + (int) (Math.random()*770),false,bc.hp);
+            }
+            //add modifier if boss is half hp
+            if (phaseTimer%50==0 && bc.hp <=5){
+                projectiles.add(new ArcProjectile(Color.BLACK,bc.x-100,40,0,7,200,50,180,180));
             }
 
         }
@@ -699,16 +790,18 @@ public class GameWindow extends JPanel{
     private class PlayerCharacter extends Shape{
 
         //fields
-        private int x,y;
+        private int x,y,dx,dy;
 
         //override constructor
         public PlayerCharacter(){
             this.x=300;
             this.y=800;
+            this.dx=0;
+            this.dy=0;
         }
 
         //overload constructor
-        public PlayerCharacter(int x,int y){
+        public PlayerCharacter(int x,int y,int dx,int dy){
             if(x>=608){
                 this.x=608;
             }
@@ -718,6 +811,8 @@ public class GameWindow extends JPanel{
             else{
                 this.x=x;
             }
+            this.dx=dx;
+            this.dy=dy;
 
             if (y>=810){
                 this.y = 810;
@@ -766,6 +861,23 @@ public class GameWindow extends JPanel{
 
             gd.setColor(Color.CYAN);
             gd.fillRoundRect(this.x+3, this.y+5, 15, 8, 10, 10);
+            x+=dx;
+            y+=dy;
+            if(x>=608){
+                this.x=608;
+            }
+            else if(x<=0){
+                this.x=0;
+            }
+            
+
+            if (y>=810){
+                this.y = 810;
+            }
+            else if (y<=40){
+                this.y = 40;
+            }
+            
         }
     }
     //class for boss hp bar

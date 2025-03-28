@@ -1,40 +1,19 @@
-import java.util.ArrayList;
-
 public class Project2Runner {
     
     /*
      * Name: CJ Mejia
-     * Student ID: <Removed>
+     * 
      * 
      ******** Project Description ********
      * 
-     * Describe in plain English the overall program/program in a paragraph or 2.
+     * This program is a bossfighting videogame with gameplay similar to bossfights in touhou and terraria.
+     * The player has 5 hp and is trying to survive waves of attacks until the boss's sheild goes down.
+     * The player must then click on the boss in order to damage the boss.
+     * The boss has 10 lives and has multiple different phases with different attack patterns.
+     * If the player clicks on the boss 10 times before they die, then they win.
+     * The player can move with "WASD" and/or Arrow Keys 
      * 
-     *
-     * 
-     ******** Swing Requirement ********
-     * 
-     * Describe in 1 paragraph how your program satisfies the requirement that
-     * there is at least 3 unique components. Be clear to identify in what
-     * files and the lines number (just the starting line is fine) that the
-     * components are defined on.
-     * 
-     * 
-     * 
-     ******** 2D Graphics Requirement ********
-     *
-     * Describe in 1 paragraph how your program satisfies the requirement that
-     * there is at least 1 JPanel used for drawing something. Be clear to
-     * identify in what files and the line numbers that this panel is defined on.
-     * 
-     * 
-     * 
-     ******** Event Listener Requirement ********
-     *
-     * Describe in 1 paragraph how your program satisfies the requirement that
-     * there is at least one ActionListener, and there is additionally at least
-     * one MouseListener or ActionListener. Be clear to identify in what file
-     * and the line numbers that these listeners are defined in.
+     * ***** This game is very difficult and will probably take many attempts before the player wins. ***** 
      */
 
     public static void main(String[] args) {
@@ -57,9 +36,9 @@ public class Project2Runner {
             game = new GameWindow();
             game.animate();
 
-            //Pause before giving final menu
+            //Pause before giving gameover menu
             try {
-                Thread.sleep(1500);
+                Thread.sleep(500);
             } catch(InterruptedException e){
                 Thread.currentThread().interrupt();
             }
@@ -69,11 +48,12 @@ public class Project2Runner {
 
             //pause until player input
             endMenu.pause();
-            
+
+            //close current game
             game.close();
             
 
-            //loop until user quits using the quit button
+        //loop until user quits using the quit button
         }while(true);
     }
 }
