@@ -4,6 +4,7 @@ import java.awt.event.*;
 
 public class GameOverMenu extends JPanel{
 
+    //fields
     private JFrame frame;
     private boolean pressed;
     private JButton playAgain;

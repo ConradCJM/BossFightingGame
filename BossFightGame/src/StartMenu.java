@@ -4,6 +4,8 @@ import java.awt.event.*;
 
 //class for start menu 
 public class StartMenu extends JPanel{
+
+    //fields
     private JFrame frame;
     private boolean pressed=false;
     private JButton start;

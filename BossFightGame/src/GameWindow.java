@@ -4,6 +4,7 @@ import java.util.*;
 import javax.swing.*;
 public class GameWindow extends JPanel{
 
+    //fields
     private JFrame frame;
     private PlayerHealth hpBar;
     private PlayerCharacter pc;
@@ -238,10 +239,10 @@ public class GameWindow extends JPanel{
             if (e.getButton() == 1){
 
                 //check if x is within boss character
-                if (x>=bc.getX()-3 && x<=bc.getX()+32){
+                if (x>=bc.getX()-2 && x<=bc.getX()+34){
 
-                    //check if y is within boss character
-                    if (y>=bc.getY()+13 && y<=bc.getY()+68){
+                    //check if y is within boss character (or atleast close to; I made the hit box slightly bigger so its easier to click on)
+                    if (y>=bc.getY()+12 && y<=bc.getY()+71){
 
                         // Debug print message
                         // System.out.println("Clicked boss");
